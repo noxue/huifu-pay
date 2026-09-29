@@ -1,0 +1,39 @@
+[package]
+name = "huifu-pay-sdk"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "AGPL-3.0"
+description = "Limited Huifu Rust SDK for hosted Alipay/WeChat payments, signed notifications, queries, and refunds."
+repository = "https://github.com/noxue/huifu-pay"
+homepage = "https://github.com/noxue/huifu-pay"
+readme = "README.md"
+keywords = ["huifu", "alipay", "wechat-pay", "payment", "refund"]
+categories = ["api-bindings", "web-programming"]
+
+[dependencies]
+async-trait = "0.1"
+base64 = "0.22"
+md-5 = "0.10"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+rsa = { version = "0.9", features = ["sha2"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+sha2 = "0.10"
+subtle = "2"
+thiserror = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+dbg_macro = "deny"
+print_stdout = "deny"
+print_stderr = "deny"
+todo = "warn"
