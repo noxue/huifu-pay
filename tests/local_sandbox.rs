@@ -3,7 +3,7 @@
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use huifu_pay_sdk::{
+use huifu_pay::{
     Client, Config, PaymentQueryRequest, PreorderRequest, RefundQueryRequest, RefundRequest,
 };
 use serde_json::{Value, json};

@@ -38,13 +38,13 @@ SDK 只支持表中标记为“支持”的接口。生产环境默认仅允许 
 
 ```toml
 [dependencies]
-huifu-pay-sdk = "0.1"
+huifu-pay = "0.1"
 ```
 
 需要跟踪尚未发布的提交时，也可以使用 Git 依赖：
 
 ```toml
-huifu-pay-sdk = { git = "https://github.com/noxue/huifu-pay" }
+huifu-pay = { git = "https://github.com/noxue/huifu-pay" }
 ```
 
 ## 配置
@@ -65,9 +65,9 @@ huifu-pay-sdk = { git = "https://github.com/noxue/huifu-pay" }
 ## 创建托管支付
 
 ```rust,no_run
-use huifu_pay_sdk::{Client, Config, PreorderRequest};
+use huifu_pay::{Client, Config, PreorderRequest};
 
-# async fn run() -> Result<(), huifu_pay_sdk::Error> {
+# async fn run() -> Result<(), huifu_pay::Error> {
 let client = Client::new(Config {
     base_url: "https://api.huifu.com".into(),
     sys_id: std::env::var("HUIFU_SYS_ID").unwrap_or_default(),
@@ -106,8 +106,8 @@ if response.accepted() {
 汇付交易通知使用 `application/x-www-form-urlencoded`，包含 `sign` 与原始 `resp_data`。必须对原始 `resp_data` 字符串验签，不能先解析再序列化。
 
 ```rust,no_run
-# use huifu_pay_sdk::{Client, Config};
-# fn handle(client: &Client, sign: &str, resp_data: &str) -> Result<String, huifu_pay_sdk::Error> {
+# use huifu_pay::{Client, Config};
+# fn handle(client: &Client, sign: &str, resp_data: &str) -> Result<String, huifu_pay::Error> {
 let notify = client.verify_notify(sign, resp_data)?;
 let merchant_order_no = notify.string("req_seq_id");
 let status = notify.string("trans_stat");

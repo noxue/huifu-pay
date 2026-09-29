@@ -11,7 +11,7 @@ Merchant onboarding, account opening, card binding, split settlement, withdrawal
 Add it from Git:
 
 ```toml
-huifu-pay-sdk = "0.1"
+huifu-pay = "0.1"
 ```
 
 See the [Chinese README](README.md) for configuration, complete examples, personal onboarding material, callback rules, local-sandbox verification, and security boundaries. The public API is documented with Rustdoc:
