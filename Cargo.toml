@@ -1,10 +1,10 @@
 [package]
 name = "huifu-pay"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.90"
 license = "AGPL-3.0"
-description = "Huifu Rust SDK for Alipay and WeChat H5/PC payments, signed notifications, queries, and refunds."
+description = "Huifu Rust SDK for Alipay and WeChat H5/PC payments, callbacks, refunds, and trade bills."
 repository = "https://github.com/noxue/huifu-pay"
 homepage = "https://github.com/noxue/huifu-pay"
 readme = "README.md"

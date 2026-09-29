@@ -11,6 +11,7 @@
 - 支付查询
 - RSA-SHA256 异步通知验签与动态 ACK
 - 原路退款与退款查询
+- 交易对账单查询与安全下载
 - 控制台 Webhook 的 MD5 验签
 - 可注入 HTTP Transport，方便离线测试和业务系统统一管控网络请求
 
@@ -27,7 +28,8 @@
 | 控制台 Webhook MD5 验签 | 支持 |
 | 商户进件、开户、绑卡 | 不支持 |
 | 分账、结算、提现 | 不支持 |
-| 对账单下载与对账 | 不支持 |
+| 交易对账单查询与下载 | 支持 |
+| 分账、结算、出金等其他账单 | 不支持 |
 | 微信小程序/公众号 openid 模式 | 不支持 |
 | 支付宝/微信原生直连 SDK | 不支持 |
 | 汇付其他产品和完整接口集合 | 不支持 |
@@ -38,7 +40,7 @@ SDK 只支持表中标记为“支持”的接口。生产环境默认仅允许 
 
 ```toml
 [dependencies]
-huifu-pay = "0.1"
+huifu-pay = "0.2"
 ```
 
 需要跟踪尚未发布的提交时，也可以使用 Git 依赖：
@@ -126,8 +128,16 @@ SDK 提供：
 - `query_payment(PaymentQueryRequest)`
 - `refund(RefundRequest)`
 - `query_refund(RefundQueryRequest)`
+- `query_trade_bill(TradeBillQueryRequest)`
+- `download_trade_bill(&TradeBillFile)`
 
 退款请求同样可能先返回处理中。业务系统应保存退款请求号，并通过签名通知或退款查询确认最终状态后，再将本地退款标记为完成。
+
+## 交易对账单
+
+`query_trade_bill` 固定查询 `TRADE_BILL`，只覆盖本库支持的支付宝、微信收款交易。`file_date` 是汇付的文件生成日期，通常为交易日期加一天；文件按 T+1/D+1 生成，建议中午后查询。返回的 `task_stat` 可能为 `I/P/DP/FP/F/S`，只有返回文件信息后才能下载。
+
+`download_trade_bill` 只接受经过汇付签名响应解析得到的文件对象，生产环境要求 HTTPS、不跟随重定向，并限制文件为 64 MiB。下载链接是短时凭据，不要写入日志或长期保存。
 
 ## 个人申请汇付
 

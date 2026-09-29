@@ -2,16 +2,16 @@
 
 [中文](README.md) · [Huifu documentation](https://paas.huifu.com/docs/devtools/#/skillsv1_0)
 
-A Huifu Rust SDK dedicated to Alipay and WeChat H5/PC payments. It implements the complete Zebra Store payment loop: hosted Alipay (`A_NATIVE`) and WeChat (`T_JSAPI`) collection, payment query, RSA-SHA256 response and transaction-notification verification, dynamic notification acknowledgements, original-route refund, refund query, and console-webhook MD5 verification. It is not a collection of every Huifu product API.
+A Huifu Rust SDK dedicated to Alipay and WeChat H5/PC payments. It implements the complete Zebra Store payment loop: hosted Alipay (`A_NATIVE`) and WeChat (`T_JSAPI`) collection, payment query, RSA-SHA256 response and transaction-notification verification, dynamic notification acknowledgements, original-route refund, refund query, trade-bill query and secure download, and console-webhook MD5 verification. It is not a collection of every Huifu product API.
 
 This library is developed for [Zebra Store](https://github.com/noxue/zebra-store) and is its underlying Huifu payment SDK. Its API remains independent so other Rust services can use it as well.
 
-Merchant onboarding, account opening, card binding, split settlement, withdrawals, reconciliation files, mini-program/openid flows, native Alipay or WeChat integrations, and other Huifu products are outside this crate's scope.
+Merchant onboarding, account opening, card binding, split/settlement/withdrawal bills, mini-program/openid flows, native Alipay or WeChat integrations, and other Huifu products are outside this crate's scope. Only the `TRADE_BILL` used to reconcile the supported Alipay and WeChat payments is included.
 
 Add it from Git:
 
 ```toml
-huifu-pay = "0.1"
+huifu-pay = "0.2"
 ```
 
 See the [Chinese README](README.md) for configuration, complete examples, personal onboarding material, callback rules, local-sandbox verification, and security boundaries. The public API is documented with Rustdoc:

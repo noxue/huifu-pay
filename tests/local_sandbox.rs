@@ -5,6 +5,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use huifu_pay::{
     Client, Config, PaymentQueryRequest, PreorderRequest, RefundQueryRequest, RefundRequest,
+    TradeBillQueryRequest,
 };
 use serde_json::{Value, json};
 
@@ -148,4 +149,31 @@ async fn alipay_and_wechat_payment_query_refund_round_trip() {
             "P" | "S"
         ));
     }
+
+    let file_date = std::env::var("HUIFU_SANDBOX_FILE_DATE").unwrap_or_else(|_| "20260623".into());
+    let first = client
+        .query_trade_bill(&TradeBillQueryRequest {
+            req_date: date.clone(),
+            req_seq_id: sequence("ZSBQ"),
+            file_date: file_date.clone(),
+        })
+        .await
+        .unwrap_or_else(|e| panic!("first bill query: {e}"));
+    assert!(first.files.is_empty());
+    assert!(first.tasks.iter().any(|task| task.task_stat == "FP"));
+
+    let second = client
+        .query_trade_bill(&TradeBillQueryRequest {
+            req_date: date,
+            req_seq_id: sequence("ZSBQ"),
+            file_date,
+        })
+        .await
+        .unwrap_or_else(|e| panic!("second bill query: {e}"));
+    let file = second.files.first().expect("sandbox bill file");
+    let contents = client
+        .download_trade_bill(file)
+        .await
+        .unwrap_or_else(|e| panic!("bill download: {e}"));
+    assert!(contents.starts_with(b"huifu_id,file_date,bill_type"));
 }
