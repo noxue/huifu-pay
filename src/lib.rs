@@ -1,4 +1,4 @@
-//! A limited Huifu hosted-payment SDK built for Zebra Store.
+//! Huifu Alipay and WeChat H5/PC payment SDK built for Zebra Store.
 //!
 //! The gateway signs the top-level `data` object with RSA-SHA256. Nested objects required by
 //! Huifu remain JSON strings at the protocol boundary. Transaction notifications are verified

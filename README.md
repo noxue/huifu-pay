@@ -2,7 +2,7 @@
 
 [English](README.en.md) · [汇付开发文档](https://paas.huifu.com/docs/devtools/#/skillsv1_0) · [Zebra Store](https://github.com/noxue/zebra-store)
 
-汇付斗拱支付的**有限功能 Rust SDK**，当前只覆盖 Zebra Store 电商收款所需的最小闭环，并非汇付全量 SDK。
+汇付斗拱支付 Rust SDK，专用于支付宝、微信 H5 和 PC 收款，并覆盖 Zebra Store 电商支付所需的完整处理闭环。本库不是汇付全部产品接口的集合。
 
 本库为 [Zebra Store](https://github.com/noxue/zebra-store) 开发，并作为 Zebra Store 的汇付支付底层 SDK 使用。接口保持独立，因此也可以集成到其他 Rust 服务。
 
@@ -14,7 +14,7 @@
 - 控制台 Webhook 的 MD5 验签
 - 可注入 HTTP Transport，方便离线测试和业务系统统一管控网络请求
 
-### 功能边界
+### 支持范围
 
 | 能力 | 状态 |
 | --- | --- |
