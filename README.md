@@ -64,6 +64,10 @@ huifu-pay = { git = "https://github.com/noxue/huifu-pay" }
 
 密钥可使用 PEM，或去掉 PEM 头尾与换行后的 Base64。私钥不要提交到 Git，也不要记录到日志。
 
+### 微信服务号配置
+
+微信 H5/PC 使用 `T_JSAPI` 时，商户需在汇付商户控台绑定可用于支付的已认证服务号，并配置 AppID、AppSecret 和支付授权目录。托管收银台请求本身不携带这些字段，因此 Zebra Store 和本 crate 都不要求保存服务号密钥；这项配置由商户在汇付侧完成。支付宝 `A_NATIVE` 不需要微信服务号信息。
+
 ## 创建托管支付
 
 ```rust,no_run
@@ -100,6 +104,8 @@ if response.accepted() {
 }
 # Ok(()) }
 ```
+
+预下单会在本地校验 `request_type` 只能为 `P`（PC）或 `M`（H5），金额必须为正数且精确到两位小数（汇付最低 `0.01` 元、字段长度最多 14），请求日期必须为 `yyyyMMdd`，`req_seq_id` 最长 64 个字符。同一商户号下，请确保每天的 `req_seq_id` 唯一。退款金额也使用同样的金额边界校验。
 
 `resp_code` 只表示请求是否受理。订单最终状态以经过验签的异步通知或主动查询返回的 `trans_stat` 为准：`S` 成功、`P/I` 处理中、`F` 失败。
 

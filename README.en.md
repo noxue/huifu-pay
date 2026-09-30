@@ -24,6 +24,12 @@ cargo doc --open
 
 The built-in HTTP client rejects redirects, uses a bounded timeout, requires HTTPS in production, and permits plain HTTP only on loopback for the official local sandbox. A custom `Transport` can be injected for application-level network controls and deterministic tests.
 
+### WeChat Official Account setup
+
+For WeChat H5/PC payments using `T_JSAPI`, the merchant must bind a verified WeChat Official Account in Huifu merchant settings and configure its AppID, AppSecret, and payment authorization directory. The hosted-checkout request does not carry these fields, so neither Zebra Store nor this crate needs to store the account credentials; configure them with Huifu. Alipay `A_NATIVE` does not require WeChat Official Account details.
+
+Preorders validate `request_type` as `P` (PC) or `M` (H5), require a positive amount with exactly two decimals (Huifu minimum `0.01`, maximum field length 14), a `yyyyMMdd` request date, and a request sequence of at most 64 characters. Keep each merchant's request sequence unique per day. Refund amounts use the same amount validation.
+
 Run checks with:
 
 ```bash

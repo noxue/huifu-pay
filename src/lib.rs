@@ -432,6 +432,14 @@ impl PreorderRequest {
             ("request_type", self.request_type.as_str()),
             ("trans_type", self.trans_type.as_str()),
         ])?;
+        validate_date("req_date", &self.req_date)?;
+        validate_sequence("req_seq_id", &self.req_seq_id)?;
+        validate_amount("trans_amt", &self.trans_amt)?;
+        if !matches!(self.request_type.as_str(), "P" | "M") {
+            return Err(Error::Request(
+                "request_type must be P (PC) or M (H5)".into(),
+            ));
+        }
         if !matches!(self.trans_type.as_str(), "A_NATIVE" | "A_JSAPI" | "T_JSAPI") {
             return Err(Error::Request(
                 "only Alipay and WeChat trans_type values are supported".into(),
@@ -456,7 +464,11 @@ impl PaymentQueryRequest {
             ("req_seq_id", self.req_seq_id.as_str()),
             ("org_req_date", self.org_req_date.as_str()),
             ("org_req_seq_id", self.org_req_seq_id.as_str()),
-        ])
+        ])?;
+        validate_date("req_date", &self.req_date)?;
+        validate_date("org_req_date", &self.org_req_date)?;
+        validate_sequence("req_seq_id", &self.req_seq_id)?;
+        validate_sequence("org_req_seq_id", &self.org_req_seq_id)
     }
 }
 
@@ -480,7 +492,12 @@ impl RefundRequest {
             ("org_req_date", self.org_req_date.as_str()),
             ("org_req_seq_id", self.org_req_seq_id.as_str()),
             ("ord_amt", self.ord_amt.as_str()),
-        ])
+        ])?;
+        validate_date("req_date", &self.req_date)?;
+        validate_date("org_req_date", &self.org_req_date)?;
+        validate_sequence("req_seq_id", &self.req_seq_id)?;
+        validate_sequence("org_req_seq_id", &self.org_req_seq_id)?;
+        validate_amount("ord_amt", &self.ord_amt)
     }
 }
 
@@ -512,8 +529,52 @@ impl TradeBillQueryRequest {
                 "req_date and file_date must use yyyyMMdd".into(),
             ));
         }
-        Ok(())
+        validate_sequence("req_seq_id", &self.req_seq_id)
     }
+}
+
+fn validate_date(name: &str, value: &str) -> Result<(), Error> {
+    if !is_yyyymmdd(value) {
+        return Err(Error::Request(format!("{name} must use yyyyMMdd")));
+    }
+    Ok(())
+}
+
+fn validate_sequence(name: &str, value: &str) -> Result<(), Error> {
+    if value.len() > 64 || value.trim() != value {
+        return Err(Error::Request(format!(
+            "{name} must not exceed 64 characters or have surrounding whitespace"
+        )));
+    }
+    Ok(())
+}
+
+fn validate_amount(name: &str, value: &str) -> Result<(), Error> {
+    let trimmed = value.trim();
+    let invalid = || {
+        Error::Request(format!(
+            "{name} must be a positive amount with exactly two decimals, at most 14 characters"
+        ))
+    };
+    if trimmed != value || trimmed.len() > 14 {
+        return Err(invalid());
+    }
+    let Some((whole, fraction)) = trimmed.split_once('.') else {
+        return Err(invalid());
+    };
+    if whole.is_empty()
+        || !whole.bytes().all(|b| b.is_ascii_digit())
+        || fraction.len() != 2
+        || !fraction.bytes().all(|b| b.is_ascii_digit())
+    {
+        return Err(invalid());
+    }
+    let whole = whole.parse::<u64>().map_err(|_| invalid())?;
+    let fraction = fraction.parse::<u64>().map_err(|_| invalid())?;
+    if whole == 0 && fraction == 0 {
+        return Err(invalid());
+    }
+    Ok(())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -596,7 +657,11 @@ impl RefundQueryRequest {
             ("req_seq_id", self.req_seq_id.as_str()),
             ("org_req_date", self.org_req_date.as_str()),
             ("org_req_seq_id", self.org_req_seq_id.as_str()),
-        ])
+        ])?;
+        validate_date("req_date", &self.req_date)?;
+        validate_date("org_req_date", &self.org_req_date)?;
+        validate_sequence("req_seq_id", &self.req_seq_id)?;
+        validate_sequence("org_req_seq_id", &self.org_req_seq_id)
     }
 }
 
@@ -799,6 +864,112 @@ mod tests {
         assert_eq!(
             canonical_json(&value).ok().as_deref(),
             Some(r#"{"a":"<tag>&","nested":"{\"b\":2,\"a\":1}","z":"last"}"#)
+        );
+    }
+
+    #[test]
+    fn preorder_validates_huifu_amount_and_request_boundaries() {
+        let valid = PreorderRequest {
+            req_date: "20260930".into(),
+            req_seq_id: "ORDER-1".into(),
+            trans_amt: "0.01".into(),
+            goods_desc: "test".into(),
+            notify_url: "https://merchant.example/notify".into(),
+            project_id: "PROJECT-1".into(),
+            project_title: "Zebra Store".into(),
+            request_type: "M".into(),
+            trans_type: "A_NATIVE".into(),
+            ..PreorderRequest::default()
+        };
+        assert!(valid.validate().is_ok());
+
+        for amount in ["0.00", "1", "1.0", "1.234", "100000000000.00"] {
+            assert!(
+                PreorderRequest {
+                    trans_amt: amount.into(),
+                    ..valid.clone()
+                }
+                .validate()
+                .is_err(),
+                "amount {amount} should be rejected"
+            );
+        }
+        assert!(
+            PreorderRequest {
+                request_type: "mobile".into(),
+                ..valid.clone()
+            }
+            .validate()
+            .is_err()
+        );
+        assert!(
+            PreorderRequest {
+                req_seq_id: "x".repeat(65),
+                ..valid.clone()
+            }
+            .validate()
+            .is_err()
+        );
+        assert!(
+            PreorderRequest {
+                req_date: "2026-09-30".into(),
+                ..valid
+            }
+            .validate()
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn refund_validates_amount_and_original_transaction_locator() {
+        let valid = RefundRequest {
+            req_date: "20260930".into(),
+            req_seq_id: "REFUND-1".into(),
+            org_req_date: "20260930".into(),
+            org_req_seq_id: "PAYMENT-1".into(),
+            ord_amt: "0.01".into(),
+            ..RefundRequest::default()
+        };
+        assert!(valid.validate().is_ok());
+        assert!(
+            RefundRequest {
+                ord_amt: "0.00".into(),
+                ..valid.clone()
+            }
+            .validate()
+            .is_err()
+        );
+        assert!(
+            RefundRequest {
+                org_req_seq_id: "x".repeat(65),
+                ..valid.clone()
+            }
+            .validate()
+            .is_err()
+        );
+        assert!(
+            RefundRequest {
+                org_req_date: "invalid".into(),
+                ..valid
+            }
+            .validate()
+            .is_err()
+        );
+
+        let query = RefundQueryRequest {
+            req_date: "20260930".into(),
+            req_seq_id: "REFUND-QUERY-1".into(),
+            org_req_date: "20260930".into(),
+            org_req_seq_id: "REFUND-1".into(),
+        };
+        assert!(query.validate().is_ok());
+        assert!(
+            RefundQueryRequest {
+                req_seq_id: "x".repeat(65),
+                ..query
+            }
+            .validate()
+            .is_err()
         );
     }
 
