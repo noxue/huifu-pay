@@ -1,6 +1,6 @@
 # huifu-pay
 
-[English](README.en.md) · [汇付开发文档](https://paas.huifu.com/docs/devtools/#/skillsv1_0) · [Zebra Store](https://github.com/noxue/zebra-store)
+[English](README.en.md) · [使用 Zebra Store 邀请链接注册汇付](https://paas.huifu.com/login?inviteCode=TAXG4QKSR) · [汇付开发文档](https://paas.huifu.com/docs/devtools/#/skillsv1_0) · [Zebra Store](https://github.com/noxue/zebra-store)
 
 汇付斗拱支付 Rust SDK，专用于支付宝、微信 H5 和 PC 收款，并覆盖 Zebra Store 电商支付所需的完整处理闭环。本库不是汇付全部产品接口的集合。
 
@@ -140,6 +140,8 @@ SDK 提供：
 `download_trade_bill` 只接受经过汇付签名响应解析得到的文件对象，生产环境要求 HTTPS、不跟随重定向，并限制文件为 64 MiB。下载链接是短时凭据，不要写入日志或长期保存。
 
 ## 个人申请汇付
+
+通过[Zebra Store 汇付邀请链接](https://paas.huifu.com/login?inviteCode=TAXG4QKSR)注册后申请。也可以直接联系汇付官网上的微信客服，或加入官网提供的微信群，通常沟通和申请会更快。
 
 个人申请时可先准备以下资料：
 
