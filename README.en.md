@@ -6,6 +6,8 @@ A Huifu Rust SDK dedicated to Alipay and WeChat H5/PC payments. It implements th
 
 This library is developed for [Zebra Store](https://github.com/noxue/zebra-store) and is its underlying Huifu payment SDK. Its API remains independent so other Rust services can use it as well.
 
+Direct scan payments also expose `refund_scanpay(ScanpayRefundRequest)` and `query_scanpay_refund(ScanpayRefundQueryRequest)`. Persist the refund date and sequence before submitting. If the response is unknown, query that same refund reference; do not submit a new reference.
+
 Merchant onboarding, account opening, card binding, split/settlement/withdrawal bills, mini-program/openid flows, native Alipay or WeChat integrations, and other Huifu products are outside this crate's scope. Only the `TRADE_BILL` used to reconcile the supported Alipay and WeChat payments is included.
 
 Add it from Git:

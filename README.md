@@ -134,10 +134,13 @@ SDK 提供：
 - `query_payment(PaymentQueryRequest)`
 - `refund(RefundRequest)`
 - `query_refund(RefundQueryRequest)`
+- `refund_scanpay(ScanpayRefundRequest)`：聚合正扫直连订单原路退款
+- `query_scanpay_refund(ScanpayRefundQueryRequest)`：按退款日期和退款请求号查询聚合正扫退款
 - `query_trade_bill(TradeBillQueryRequest)`
 - `download_trade_bill(&TradeBillFile)`
 
 退款请求同样可能先返回处理中。业务系统应保存退款请求号，并通过签名通知或退款查询确认最终状态后，再将本地退款标记为完成。
+聚合正扫退款须提供原支付的 `org_req_date` 与 `org_req_seq_id`，并为退款固定新的 `req_date` 与 `req_seq_id`。网络超时后只查询原退款请求号，不要生成新号重试。
 
 ## 交易对账单
 
